@@ -17,10 +17,6 @@ import nme.system.System;
 import nme.ui.Keyboard;
 
 class Main extends Sprite {
-
-  private var rad:Int;
-  private var pnt:Point;
-
   private var blockGroups:Array<BlockGroup>;
 
   private var movBlock:Block;
@@ -36,8 +32,6 @@ class Main extends Sprite {
   }
 
   private function construct():Void {
-    pnt = new Point(stage.stageWidth / 2, stage.stageHeight / 2);
-    rad = 10;
     addEventListener(Event.ENTER_FRAME, enterFrame);
 
     blockGroups = new Array<BlockGroup>();
@@ -70,7 +64,7 @@ class Main extends Sprite {
     block.move(block.width, 0);
     tempBlocks.addBlock(block);
 
-    tempBlocks.rotation = 90;
+    //tempBlocks.rotation = 90;
 
     blockGroups.push(tempBlocks);
 
@@ -101,7 +95,12 @@ class Main extends Sprite {
       for (bBlockGroup in blockGroups) {
         if (bBlockGroup != blockGroup) {
           if (blockGroup.hitTestGroup(bBlockGroup)) {
-            blockGroup.joinBlockGroup(bBlockGroup);
+            if (bBlockGroup.dragging) {
+              bBlockGroup.joinBlockGroup(blockGroup);
+            }
+            else {
+              blockGroup.joinBlockGroup(bBlockGroup);
+            }
           }
         }
       }
@@ -117,6 +116,11 @@ class Main extends Sprite {
       }
     }
   }
+
+
+  // -------------------------------------------------- 
+  //                      Events
+  // -------------------------------------------------- 
 
   private function addedToStage(event:Event):Void {
     construct();
@@ -154,6 +158,7 @@ class Main extends Sprite {
     }
   }
 }
+
 
 
 //

@@ -56,7 +56,6 @@ class BlockGroup extends Sprite {
 
   public function update() {
     if (flickable && movVect.x != 0 && movVect.y != 0) {
-      //trace(x + ", " + y);
       if (x < 0 || x > stage.stageWidth) movVect.x *= -1;
       if (y < 0 || y > stage.stageHeight) movVect.y *= -1;
       
@@ -83,33 +82,42 @@ class BlockGroup extends Sprite {
     addChild(block);
   }
 
-  public function joinBlock(bBlock:Block) {
-    var aPoint:Point;
+  public function joinBlock(bBlock:Block, ?aBlock:Block) {
+    var aPoint:Point = new Point();
     var aPointG:Point;
     var bPoint:Point = new Point(bBlock.x, bBlock.y);
-    for (aBlock in blocks) {
-      aPoint = new Point(aBlock.x, aBlock.y);
-      aPointG = localToGlobal(aPoint);
-      if (Point.distance(aPointG, bPoint) < (bBlock.width / 2) + (aBlock.width / 2)) {
-        var bVect = new Point(bPoint.x - x, bPoint.y - y);
-        var bDist = Math.sqrt(bVect.x * bVect.x + bVect.y * bVect.y);
-        var nAng = Maths.wrapAngle(Maths.getAng(bVect) - rotation);
-        bPoint.x = Math.cos(nAng * Math.PI / 180) * bDist;
-        bPoint.y = Math.sin(nAng * Math.PI / 180) * bDist;
-        var xAddin:Float = 0, yAddin:Float = 0;
-        if (Math.abs(aPoint.x - bPoint.x) > Math.abs(aPoint.y - bPoint.y)) {
-          xAddin = (aPoint.x - bPoint.x > 0 ? -1 : 1) * aBlock.width;
+    if (aBlock == null) {
+      for (tempABlock in blocks) {
+        aPoint = new Point(tempABlock.x, tempABlock.y);
+        aPointG = localToGlobal(aPoint);
+        if (Point.distance(aPointG, bPoint) < (bBlock.width / 2) + (tempABlock.width / 2)) {
+          aBlock = tempABlock;
+          break;
         }
-        else {
-          yAddin = (aPoint.y - bPoint.y > 0 ? -1 : 1) * aBlock.height;
-        }
-
-        bBlock.move(aBlock.x + xAddin, aBlock.y + yAddin);
-        bBlock.rotation = rotation % 90;
-        addBlock(bBlock);
-        Actuate.tween(bBlock, 0.5, {rotation: 0});
-        break;
       }
+    }
+    else {
+      aPoint = new Point(aBlock.x, aBlock.y);
+    }
+
+    if (aBlock != null) { 
+      var bVect = new Point(bPoint.x - x, bPoint.y - y);
+      var bDist = Math.sqrt(bVect.x * bVect.x + bVect.y * bVect.y);
+      var nAng = Maths.wrapAngle(Maths.getAng(bVect) - rotation);
+      bPoint.x = Math.cos(nAng * Math.PI / 180) * bDist;
+      bPoint.y = Math.sin(nAng * Math.PI / 180) * bDist;
+      var xAddin:Float = 0, yAddin:Float = 0;
+      if (Math.abs(aPoint.x - bPoint.x) > Math.abs(aPoint.y - bPoint.y)) {
+        xAddin = (aPoint.x - bPoint.x > 0 ? -1 : 1) * aBlock.width;
+      }
+      else {
+        yAddin = (aPoint.y - bPoint.y > 0 ? -1 : 1) * aBlock.height;
+      }
+
+      bBlock.move(aBlock.x + xAddin, aBlock.y + yAddin);
+      bBlock.rotation = rotation % 90;
+      addBlock(bBlock);
+      Actuate.tween(bBlock, 0.5, {rotation: 0});
     }
   }
 
@@ -130,11 +138,80 @@ class BlockGroup extends Sprite {
         }
       }
       if (aCollide != null && bCollide != null) {
-        trace("Yeah punk!!");
+        var bBlock:Block;
+        var prevBlock:Block = aCollide;
+        for (bBlockIndex in 0...bBlockGroup.blocks.length) {
+          bBlock = bBlockGroup.blocks[0];
+          bPoint = bBlockGroup.localToGlobal(new Point(bBlock.x, bBlock.y));
+          bBlock.x = bPoint.x;
+          bBlock.y = bPoint.y;
+          bBlockGroup.removeBlock(bBlock);
+          bBlockGroup.parent.addChild(bBlock);
+          joinBlock(bBlock, prevBlock);
+          prevBlock = bBlock;
+        }
         break;
       }
     }
   }
+
+/*
+  public function joinBlockGroup(bBlockGroup:BlockGroup) {
+    var aCollide:Block = null;
+    var bCollide:Block = null;
+    var aPoint:Point;
+    var bPoint:Point;
+    for (aBlock in blocks) {
+      for (bBlock in bBlockGroup.blocks) {
+        aPoint = new Point(aBlock.x, aBlock.y);
+        aPoint = localToGlobal(aPoint);
+        bPoint = bBlockGroup.localToGlobal(new Point(bBlock.x, bBlock.y));
+        if (Point.distance(aPoint, bPoint) < (bBlock.width / 2) + (aBlock.width / 2)) {
+          aCollide = aBlock;
+          bCollide = bBlock;
+          break;
+        }
+      }
+      if (aCollide != null && bCollide != null) {
+        aPoint = new Point(aCollide.x, aCollide.y);
+        bPoint = bBlockGroup.localToGlobal(new Point(bCollide.x, bCollide.y));
+        var bVect = new Point(bPoint.x - x, bPoint.y - y);
+        var bDist = Math.sqrt(bVect.x * bVect.x + bVect.y * bVect.y);
+        var nAng = Maths.wrapAngle(Maths.getAng(bVect) - rotation);
+        bPoint.x = Math.cos(nAng * Math.PI / 180) * bDist;
+        bPoint.y = Math.sin(nAng * Math.PI / 180) * bDist;
+        var xAddin:Float = 0, yAddin:Float = 0;
+        if (Math.abs(aPoint.x - bPoint.x) > Math.abs(aPoint.y - bPoint.y)) {
+          xAddin = (aPoint.x - bPoint.x > 0 ? -1 : 1) * aCollide.width;
+        }
+        else {
+          yAddin = (aPoint.y - bPoint.y > 0 ? -1 : 1) * aCollide.height;
+        }
+        //for (bBlock in bBlockGroup.blocks) {
+          //bCollide.move(aCollide.x + xAddin + bBlock.x - bCollide.x, aCollide.y + yAddin + bBlock.y - bCollide.y);
+          //bBlockGroup.removeBlock(bBlock);
+          //addBlock(bBlock);
+        //}
+        for (bBlock in bBlockGroup.blocks) {
+          var tempAddX = (bCollide.x - bBlock.x);
+          var tempAddY = (bCollide.y - bBlock.y);
+          bBlock.move(
+            aCollide.x + xAddin + tempAddX,
+            aCollide.y + yAddin + tempAddY
+          );
+          trace((bCollide.x - bBlock.x) + "  v  " + (bCollide.y - bBlock.y));
+          //bCollide.move(aCollide.x + xAddin, aCollide.y + yAddin);
+          addBlock(bBlock);
+        }
+        for (i in 0...bBlockGroup.blocks.length) {
+          bBlockGroup.removeBlock(bBlockGroup.blocks[0]);
+        }
+        
+        break;
+      }
+    }
+  }
+  */
 
   public function removeBlock(block:Block) {
     if (contains(block)) {
