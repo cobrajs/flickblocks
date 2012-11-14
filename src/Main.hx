@@ -43,10 +43,12 @@ class Main extends Sprite {
     addChild(tempBlocks);
 
     var block = new Block();
+    block.setNum(1);
     tempBlocks.addBlock(block);
 
     var block = new Block();
     block.move(block.width, 0);
+    block.setNum(2);
     tempBlocks.addBlock(block);
 
     blockGroups.push(tempBlocks);
@@ -58,10 +60,12 @@ class Main extends Sprite {
     addChild(tempBlocks);
 
     var block = new Block();
+    block.setNum(1);
     tempBlocks.addBlock(block);
 
     var block = new Block();
     block.move(block.width, 0);
+    block.setNum(2);
     tempBlocks.addBlock(block);
 
     //tempBlocks.rotation = 90;
@@ -110,6 +114,7 @@ class Main extends Sprite {
         movBlock.removeEventListener(MouseEvent.MOUSE_UP, movBlock_mouseUp);
         movBlock.stopDrag();
         removeChild(movBlock);
+        movBlock.setNum(blockGroup.blocks.length + 1);
         blockGroup.joinBlock(movBlock);
         resetMovBlock();
         doneMove = false;

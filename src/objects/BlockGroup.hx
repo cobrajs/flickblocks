@@ -104,6 +104,7 @@ class BlockGroup extends Sprite {
       var bVect = new Point(bPoint.x - x, bPoint.y - y);
       var bDist = Math.sqrt(bVect.x * bVect.x + bVect.y * bVect.y);
       var nAng = Maths.wrapAngle(Maths.getAng(bVect) - rotation);
+      trace(aPoint.x + ", " + aPoint.y + " : " + bPoint.x + ", " + bPoint.y + " : " + x + ", " + y);
       bPoint.x = Math.cos(nAng * Math.PI / 180) * bDist;
       bPoint.y = Math.sin(nAng * Math.PI / 180) * bDist;
       var xAddin:Float = 0, yAddin:Float = 0;
@@ -142,13 +143,17 @@ class BlockGroup extends Sprite {
         var prevBlock:Block = aCollide;
         for (bBlockIndex in 0...bBlockGroup.blocks.length) {
           bBlock = bBlockGroup.blocks[0];
+          trace(bBlock.x + " : " + bBlock.y);
           bPoint = bBlockGroup.localToGlobal(new Point(bBlock.x, bBlock.y));
           bBlock.x = bPoint.x;
           bBlock.y = bPoint.y;
+          trace(bBlock.x + " : " + bBlock.y);
+          trace("");
           bBlockGroup.removeBlock(bBlock);
           bBlockGroup.parent.addChild(bBlock);
           joinBlock(bBlock, prevBlock);
           prevBlock = bBlock;
+          //trace(prevBlock.x + " : " + prevBlock.y);
         }
         break;
       }

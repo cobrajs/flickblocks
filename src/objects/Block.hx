@@ -38,5 +38,13 @@ class Block extends Sprite {
     this.y = y;
   }
 
+  public function setNum(n:Int):Void {
+    for (x in 0...n) {
+      Graphic.graphics.beginFill(0xFFFF00);
+      Graphic.graphics.drawCircle(x * 10 + 5, 5, 5);
+      Graphic.graphics.endFill();
+    }
+  }
+
 }
 
