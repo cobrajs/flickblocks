@@ -38,21 +38,26 @@ class Main extends Sprite {
 
     // Initial Block Group
     var tempBlocks = new BlockGroup();
-    tempBlocks.x = stage.stageWidth / 2;
+    tempBlocks.x = stage.stageWidth - 32;
     tempBlocks.y = stage.stageHeight / 2;
     addChild(tempBlocks);
 
     var block = new Block();
-    block.setNum(1);
     tempBlocks.addBlock(block);
 
     var block = new Block();
-    block.move(block.width, 0);
-    block.setNum(2);
+    block.move(0, block.height);
     tempBlocks.addBlock(block);
+
+    var block = new Block();
+    block.move(0, -block.height);
+    tempBlocks.addBlock(block);
+
+    tempBlocks.interactive = false;
 
     blockGroups.push(tempBlocks);
 
+    /*
     // Secondary Block Group
     var tempBlocks = new BlockGroup();
     tempBlocks.x = stage.stageWidth - 100;
@@ -71,6 +76,9 @@ class Main extends Sprite {
     //tempBlocks.rotation = 90;
 
     blockGroups.push(tempBlocks);
+    */
+
+    genBlockGroup();
 
     resetMovBlock();
 
@@ -84,6 +92,26 @@ class Main extends Sprite {
     stage.addEventListener(MouseEvent.MOUSE_UP, stageMouseUp);
   }
   
+  private function genBlockGroup():Void {
+    var setups = [
+      [[0, 0], [0, 64], [64, 0]],
+      [[0, 0], [-64, 0], [64, 0]]
+    ];
+
+    var choose = setups[Math.floor(Math.random() * 2)];
+
+    var tempBlocks = new BlockGroup();
+    tempBlocks.x = 100;
+    tempBlocks.y = stage.stageHeight / 2;
+    addChild(tempBlocks);
+    for (i in 0...choose.length) {
+      var block = new Block();
+      block.move(choose[i][0], choose[i][1]);
+      tempBlocks.addBlock(block);
+    }
+    blockGroups.push(tempBlocks);
+  }
+
   private function resetMovBlock():Void {
     movBlock = new Block();
     movBlock.x = 10;
@@ -99,7 +127,7 @@ class Main extends Sprite {
       for (bBlockGroup in blockGroups) {
         if (bBlockGroup != blockGroup) {
           if (blockGroup.hitTestGroup(bBlockGroup)) {
-            if (bBlockGroup.dragging) {
+            if ((bBlockGroup.dragging && blockGroup.interactive) || !bBlockGroup.interactive) {
               bBlockGroup.joinBlockGroup(blockGroup);
             }
             else {
@@ -114,7 +142,7 @@ class Main extends Sprite {
         movBlock.removeEventListener(MouseEvent.MOUSE_UP, movBlock_mouseUp);
         movBlock.stopDrag();
         removeChild(movBlock);
-        movBlock.setNum(blockGroup.blocks.length + 1);
+        //movBlock.setNum(blockGroup.blocks.length + 1);
         blockGroup.joinBlock(movBlock);
         resetMovBlock();
         doneMove = false;

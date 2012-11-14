@@ -21,6 +21,8 @@ class Block extends Sprite {
   public function new() {
     super();
 
+    Filter = new DropShadowFilter(8, 45, 0x555555);
+    
     Graphic = new Bitmap(Assets.getBitmapData("assets/block.png"));
     Graphic.x -= Graphic.width / 2;
     Graphic.y -= Graphic.height / 2;
